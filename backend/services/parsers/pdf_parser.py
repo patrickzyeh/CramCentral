@@ -4,6 +4,7 @@ from pypdf import PdfReader
 from .file_parser import FileParser
 
 class PdfParser(FileParser):
+    
     async def parse_text(self) -> str:
         content = await self.file.read()
         reader = PdfReader(BytesIO(content))
@@ -15,4 +16,4 @@ class PdfParser(FileParser):
             if text:
                 slideText.append(text)
 
-        return "\n".join(slideText)
+        return " ".join(slideText)

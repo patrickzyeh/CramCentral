@@ -1,16 +1,16 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, HTTPException, File, Depends
+from typing import Annotated
 
-from services.parsers.pdf_parser import PdfParser
+from services.parsers.parser_factory import get_parser
+from services.parsers.file_parser import FileParser
 
-# try implementing dependency inversion for the parsers
-# store the accepted files somewhere perferably not in the code open closed
-# split["."][-1] for extension
-# check if extension and match appropriately
 
 router = APIRouter()
 
 @router.post("/", tags=["files"])
-async def process_file(file: UploadFile = File(...)):
-    parser = PdfParser(file)
+async def process_file(parser: Annotated[FileParser, Depends(get_parser)], file: UploadFile = File(...)):
+    if not parser:
+        raise HTTPException(status_code=415, detail="Unsupported file type. Only PDF and PPTX are allowed.")
+
     text = await parser.parse_text()
     return {"text": f"{text}"}
